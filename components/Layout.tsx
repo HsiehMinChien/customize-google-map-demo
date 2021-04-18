@@ -1,5 +1,10 @@
-import React, { ReactNode } from 'react'
-import Head from 'next/head'
+import React, { ReactNode } from 'react';
+import Head from 'next/head';
+import styled from 'styled-components';
+
+const StyledDiv = styled.div`
+  text-align: center;
+`;
 
 type Props = {
   children?: ReactNode
@@ -15,13 +20,11 @@ const Layout = ({ children, title = '' }: Props) => (
       {/* Font family */}
       <link rel="preconnect" href="https://fonts.gstatic.com" />
       <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
-      {/* Google map api */}
-      <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5PwnmMtE8G1RwBREdJTAR1PSijmnuBxQ&map_ids=7938d5eb683d060b" />
     </Head>
     {children}
     <footer>
       <hr />
-      <span>Demo by Jeff</span>
+      <StyledDiv> Demo by Jeff, 2021-04 </StyledDiv>
     </footer>
   </div>
 )

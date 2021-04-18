@@ -8,3 +8,4 @@ export type User = {
   id: number
   name: string
 }
+export type enhanceMapOptions = google.maps.MapOptions & { mapId: string };
