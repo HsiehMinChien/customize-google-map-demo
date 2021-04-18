@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import styled from 'styled-components';
+// @ts-ignore
 import { Loader } from "@googlemaps/js-api-loader";
 import Layout from '../components/Layout';
 import geoLocations from '../constant/geolocation';
