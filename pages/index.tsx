@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 // @ts-ignore
 import { Loader } from "@googlemaps/js-api-loader";
@@ -92,7 +92,14 @@ const markersData = [
   },
 ];
 
-const IndexPage = () => {
+type IndexPageProp = {
+  dropInSameTime: Boolean,
+};
+
+const IndexPage = ({
+  dropInSameTime = false,
+}: IndexPageProp) => {
+  const [isOriginalMap, setIsOriginalMap] = useState(false);
   useEffect(() => {
     loader.load().then(() => {
       const map = new google.maps.Map(
@@ -100,35 +107,44 @@ const IndexPage = () => {
         {
           center: geoLocations.superNintendoWorld,
           zoom: 18,
-          mapId: '7938d5eb683d060b',
+          mapId: isOriginalMap ? undefined : '7938d5eb683d060b',
         } as enhanceMapOptions,
       );
-      markersData.forEach(({ position, title, iconUrl, iconWidth, iconHeight, content }) => {
-        const marker = new google.maps.Marker({
-          position,
-          map,
-          title,
-          icon: {
-            url: iconUrl,
-            scaledSize: new google.maps.Size(iconWidth, iconHeight),
-          },
-          animation: google.maps.Animation.DROP,
-        });
-        const infoWindows = new google.maps.InfoWindow({ content });
-        marker.addListener('click', () => {
-          infoWindows.open(map, marker);
-        });
+      if (isOriginalMap) return;
+      markersData.forEach(({ position, title, iconUrl, iconWidth, iconHeight, content }, i) => {
+        setTimeout(() => {
+          const marker = new google.maps.Marker({
+            position,
+            map,
+            title,
+            icon: {
+              url: iconUrl,
+              scaledSize: new google.maps.Size(iconWidth, iconHeight),
+            },
+            animation: google.maps.Animation.DROP,
+            draggable: title === 'You Are Here',
+          });
+          const infoWindows = new google.maps.InfoWindow({ content });
+          marker.addListener('click', () => {
+            infoWindows.open(map, marker);
+            marker.setAnimation(google.maps.Animation.BOUNCE);
+            setTimeout(() => {
+              marker.setAnimation(null);
+            }, 1500);
+          });
+        } , i * (dropInSameTime ? 0 : 200));
       });
     });
-  }, []);
+  }, [isOriginalMap]);
   return (
     <Layout title="Customize Google Map">
       <StyledH1>Customize Google Map</StyledH1>
-      <MapRootDiv id="map" />
+      <button onClick={() => { setIsOriginalMap(o => !o); }}>Change Map Style</button>
       <audio src="/bgm.mp3" autoPlay loop>
         <p>If you are reading this, it is because your browser does not support the audio element.     </p>
         <embed src="/bgm.mp3" width="180" height="90" />
       </audio>
+      <MapRootDiv id="map" />
     </Layout>
   );
 }
