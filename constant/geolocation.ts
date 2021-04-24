@@ -39,6 +39,10 @@ const geoLocations = {
     lat: 34.6683781779677,
     lng: 135.43217016043528,
   },
+  coin: {
+    lat: 34.667559023359266,
+    lng: 135.43066400953733,
+  }
 };
 
 export default geoLocations;

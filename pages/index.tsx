@@ -7,6 +7,8 @@ import geoLocations from '../constant/geolocation';
 import images from '../constant/base64Images';
 import { enhanceMapOptions } from '../interfaces';
 
+// const audioFile = new Audio('/bgm.mp3');
+// const coinSound = new Audio('/Mario-coin-sound.mp3');
 const MapRootDiv = styled.div`
   height: 85vh;
 `;
@@ -90,6 +92,14 @@ const markersData = [
     iconWidth: 50,
     iconHeight: 60.7,
   },
+  {
+    title: 'Coin',
+    content: "<div style='color:yellow; font-family: \"Press Start 2P\"'>Coin!</div>",
+    position: geoLocations.coin,
+    iconUrl: images.COIN,
+    iconWidth: 40,
+    iconHeight: 48,
+  },
 ];
 
 type IndexPageProp = {
@@ -100,6 +110,7 @@ const IndexPage = ({
   dropInSameTime = false,
 }: IndexPageProp) => {
   const [isOriginalMap, setIsOriginalMap] = useState(false);
+  const [coinCount, setCoinCount] = useState(0);
   useEffect(() => {
     loader.load().then(() => {
       const map = new google.maps.Map(
@@ -128,9 +139,21 @@ const IndexPage = ({
           marker.addListener('click', () => {
             infoWindows.open(map, marker);
             marker.setAnimation(google.maps.Animation.BOUNCE);
-            setTimeout(() => {
-              marker.setAnimation(null);
-            }, 1500);
+            // audioFile.play();
+            if (title === 'Coin') {
+              new Audio('/Mario-coin-sound.mp3').play();
+              setTimeout(() => {
+                marker.setAnimation(null);
+                setCoinCount(c => c + 1);
+              }, 500);
+              setTimeout(() => {
+                marker.setMap(null);
+              }, 700);
+            } else {
+              setTimeout(() => {
+                marker.setAnimation(null);
+              }, 1500);
+            }
           });
         } , i * (dropInSameTime ? 0 : 200));
       });
@@ -139,11 +162,12 @@ const IndexPage = ({
   return (
     <Layout title="Customize Google Map">
       <StyledH1>Customize Google Map</StyledH1>
+      <div><img src={images.COIN} style={{ width: 40, height: 48 }}/> x {coinCount}</div>
       <button onClick={() => { setIsOriginalMap(o => !o); }}>Change Map Style</button>
-      <audio src="/bgm.mp3" autoPlay loop>
+      {/* <audio src="/bgm.mp3" autoPlay loop>
         <p>If you are reading this, it is because your browser does not support the audio element.     </p>
         <embed src="/bgm.mp3" width="180" height="90" />
-      </audio>
+      </audio> */}
       <MapRootDiv id="map" />
     </Layout>
   );
