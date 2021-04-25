@@ -5,10 +5,35 @@ import { Loader } from "@googlemaps/js-api-loader";
 import Layout from '../components/Layout';
 import geoLocations from '../constant/geolocation';
 import images from '../constant/base64Images';
+import titleConstants from '../constant/title';
 import { enhanceMapOptions } from '../interfaces';
 
-// const audioFile = new Audio('/bgm.mp3');
-// const coinSound = new Audio('/Mario-coin-sound.mp3');
+const StyledDiv = styled.div`
+  width: 100vw;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+`;
+const StyledImg = styled.img`
+  height: 48px;
+  width: 40px;
+`;
+const StyledButton = styled.button`
+  width: 'fit-content';
+  font-family: 'Press Start 2P';
+  font-size: 20px;
+  height: 48px;
+  width: 500px;
+  border-radius: 10px;
+  border: 0;
+  background-color: DarkCyan;
+  color: #FFF;
+`;
+const CoinDiv = styled.span`
+  font-size: 26px;
+  font-family: 'Press Start 2P';
+`;
 const MapRootDiv = styled.div`
   height: 85vh;
 `;
@@ -21,23 +46,25 @@ const loader = new Loader({
 });
 const markersData = [
   {
-    title: "Yoshi's House",
+    title: titleConstants.YOSHI_HOUSE,
     content: "<div style='color:red; font-family: \"Press Start 2P\"'>Yoshi\s House!</div>",
     position: geoLocations.yoshisHouse,
     iconUrl: images.YOSHI_HOUSE,
     iconWidth: 38,
     iconHeight: 31,
+    audioPath: '/bgm.mp3',
   },
   {
-    title: 'You Are Here',
-    content: "<div style='color:green; font-family: \"Press Start 2P\"'>You Are Here!</div>",
+    title: titleConstants.ME,
+    // content: "<div style='color:green; font-family: \"Press Start 2P\"'>You Are Here!</div>",
     position: geoLocations.me,
     iconUrl: images.ME,
     iconWidth: 30,
     iconHeight: 47.8,
+    audioPath: '/drm64_mario2.wav',
   },
   {
-    title: 'Ghost House',
+    title: titleConstants.GHOST_HOUSE,
     content: "<div style='color:blue; font-family: \"Press Start 2P\"'>Ghost House!</div>",
     position: geoLocations.ghostHouse,
     iconUrl: images.GHOST_HOUSE,
@@ -45,7 +72,7 @@ const markersData = [
     iconHeight: 48,
   },
   {
-    title: 'Castle',
+    title: titleConstants.CASTLE,
     content: "<div style='color:gray; font-family: \"Press Start 2P\"'>Castle!</div>",
     position: geoLocations.castle,
     iconUrl: images.CASTLE,
@@ -53,15 +80,15 @@ const markersData = [
     iconHeight: 53,
   },
   {
-    title: 'Warp Pipe',
-    content: "<div style='color:orange; font-family: \"Press Start 2P\"'>Warp Pipe!</div>",
+    title: titleConstants.WRAP_PIPE,
+    content: "<div style='color:green; font-family: \"Press Start 2P\"'>Warp Pipe!</div>",
     position: geoLocations.warpPipe,
     iconUrl: images.WRAP_PIPE,
     iconWidth: 38,
     iconHeight: 42.5,
   },
   {
-    title: 'Star World',
+    title: titleConstants.STAR_WORLD,
     content: "<div style='color:purple; font-family: \"Press Start 2P\"'>Star World!</div>",
     position: geoLocations.starWorld,
     iconUrl: images.STAR_WORLD,
@@ -69,7 +96,7 @@ const markersData = [
     iconHeight: 38,
   },
   {
-    title: 'Donut Plains',
+    title: titleConstants.DOUNT_PLAINS,
     content: "<div style='color:DarkCyan; font-family: \"Press Start 2P\"'>Donut Plains!</div>",
     position: geoLocations.donutPlainsOne,
     iconUrl: images.DOUNT_PLAINS,
@@ -77,7 +104,7 @@ const markersData = [
     iconHeight: 60.7,
   },
   {
-    title: 'Donut Plains',
+    title: titleConstants.DOUNT_PLAINS,
     content: "<div style='color:DarkCyan; font-family: \"Press Start 2P\"'>Donut Plains!</div>",
     position: geoLocations.donutPlainsTwo,
     iconUrl: images.DOUNT_PLAINS,
@@ -85,7 +112,7 @@ const markersData = [
     iconHeight: 60.7,
   },
   {
-    title: 'Donut Plains',
+    title: titleConstants.DOUNT_PLAINS,
     content: "<div style='color:DarkCyan; font-family: \"Press Start 2P\"'>Donut Plains!</div>",
     position: geoLocations.donutPlainsThree,
     iconUrl: images.DOUNT_PLAINS,
@@ -93,12 +120,13 @@ const markersData = [
     iconHeight: 60.7,
   },
   {
-    title: 'Coin',
-    content: "<div style='color:yellow; font-family: \"Press Start 2P\"'>Coin!</div>",
+    title: titleConstants.COIN,
+    // content: "<div style='color:orange; font-family: \"Press Start 2P\"'>Coin!</div>",
     position: geoLocations.coin,
     iconUrl: images.COIN,
-    iconWidth: 40,
-    iconHeight: 48,
+    iconWidth: 35,
+    iconHeight: 42,
+    audioPath: '/Mario-coin-sound.mp3',
   },
 ];
 
@@ -122,7 +150,7 @@ const IndexPage = ({
         } as enhanceMapOptions,
       );
       if (isOriginalMap) return;
-      markersData.forEach(({ position, title, iconUrl, iconWidth, iconHeight, content }, i) => {
+      markersData.forEach(({ position, title, iconUrl, iconWidth, iconHeight, content, audioPath }, i) => {
         setTimeout(() => {
           const marker = new google.maps.Marker({
             position,
@@ -133,15 +161,18 @@ const IndexPage = ({
               scaledSize: new google.maps.Size(iconWidth, iconHeight),
             },
             animation: google.maps.Animation.DROP,
-            draggable: title === 'You Are Here',
+            draggable: title === titleConstants.ME,
           });
-          const infoWindows = new google.maps.InfoWindow({ content });
+          
           marker.addListener('click', () => {
-            infoWindows.open(map, marker);
-            marker.setAnimation(google.maps.Animation.BOUNCE);
-            // audioFile.play();
-            if (title === 'Coin') {
-              new Audio('/Mario-coin-sound.mp3').play();
+            if (content) {
+              const infoWindows = new google.maps.InfoWindow({ content });
+              infoWindows.open(map, marker);
+            }
+            
+            if (title === titleConstants.COIN) {
+              marker.setAnimation(google.maps.Animation.BOUNCE);
+              new Audio(audioPath).play();
               setTimeout(() => {
                 marker.setAnimation(null);
                 setCoinCount(c => c + 1);
@@ -150,9 +181,11 @@ const IndexPage = ({
                 marker.setMap(null);
               }, 700);
             } else {
+              if (title === titleConstants.ME) marker.setAnimation(google.maps.Animation.BOUNCE);
+              if (audioPath) new Audio(audioPath).play();
               setTimeout(() => {
                 marker.setAnimation(null);
-              }, 1500);
+              }, 500);
             }
           });
         } , i * (dropInSameTime ? 0 : 200));
@@ -162,12 +195,14 @@ const IndexPage = ({
   return (
     <Layout title="Customize Google Map">
       <StyledH1>Customize Google Map</StyledH1>
-      <div><img src={images.COIN} style={{ width: 40, height: 48 }}/> x {coinCount}</div>
-      <button onClick={() => { setIsOriginalMap(o => !o); }}>Change Map Style</button>
-      {/* <audio src="/bgm.mp3" autoPlay loop>
-        <p>If you are reading this, it is because your browser does not support the audio element.     </p>
-        <embed src="/bgm.mp3" width="180" height="90" />
-      </audio> */}
+      <StyledDiv>
+        <div>
+          <StyledImg src={images.COIN} /><CoinDiv> x {coinCount}</CoinDiv>
+        </div>
+        <div>
+          <StyledButton onClick={() => { setIsOriginalMap(o => !o); }}>Change Map Style</StyledButton>
+        </div>
+      </StyledDiv>
       <MapRootDiv id="map" />
     </Layout>
   );
