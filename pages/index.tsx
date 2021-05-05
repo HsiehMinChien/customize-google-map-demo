@@ -24,7 +24,7 @@ const StyledButton = styled.button`
   font-family: 'Press Start 2P';
   font-size: 20px;
   height: 48px;
-  width: 500px;
+  padding: 0 20px;
   border-radius: 10px;
   border: 0;
   background-color: DarkCyan;
@@ -56,7 +56,6 @@ const markersData = [
   },
   {
     title: titleConstants.ME,
-    // content: "<div style='color:green; font-family: \"Press Start 2P\"'>You Are Here!</div>",
     position: geoLocations.me,
     iconUrl: images.ME,
     iconWidth: 30,
@@ -121,7 +120,6 @@ const markersData = [
   },
   {
     title: titleConstants.COIN,
-    // content: "<div style='color:orange; font-family: \"Press Start 2P\"'>Coin!</div>",
     position: geoLocations.coin,
     iconUrl: images.COIN,
     iconWidth: 35,
@@ -138,7 +136,44 @@ const IndexPage = ({
   dropInSameTime = false,
 }: IndexPageProp) => {
   const [isOriginalMap, setIsOriginalMap] = useState(false);
+  const [createdMap, setCreatedMap] = useState(null);
   const [coinCount, setCoinCount] = useState(0);
+  const getRandomLoation = () => {
+    const random1 = Math.random() - 0.5;
+    const random2 = Math.random() - 0.5;
+    const nextLat = geoLocations.superNintendoWorld.lat + (random1 * 2 / 1000);
+    const nextLng = geoLocations.superNintendoWorld.lng + (random2 * 3 / 1000);
+    return {
+      lat: nextLat,
+      lng: nextLng,
+    };
+  };
+  const createCoinMarker = (position?: { lat: number, lng: number }) => {
+    const coinInfo = markersData[markersData.length - 1];
+    const nextPosition = position || getRandomLoation();
+    const marker = new google.maps.Marker({
+      position: nextPosition,
+      map: createdMap,
+      title: coinInfo.title,
+      icon: {
+        url: coinInfo.iconUrl,
+        scaledSize: new google.maps.Size(coinInfo.iconWidth, coinInfo.iconHeight),
+      },
+      animation: google.maps.Animation.DROP,
+    });
+    marker.addListener('click', () => {
+      marker.setAnimation(google.maps.Animation.BOUNCE);
+      new Audio(coinInfo.audioPath).play();
+      setTimeout(() => {
+        marker.setAnimation(null);
+        setCoinCount(c => c + 1);
+      }, 500);
+      setTimeout(() => {
+        marker.setMap(null);
+        createCoinMarker();
+      }, 700);
+    });
+  };
   useEffect(() => {
     loader.load().then(() => {
       const map = new google.maps.Map(
@@ -149,6 +184,7 @@ const IndexPage = ({
           mapId: isOriginalMap ? undefined : '7938d5eb683d060b',
         } as enhanceMapOptions,
       );
+      setCreatedMap(map as any);
       if (isOriginalMap) return;
       markersData.forEach(({ position, title, iconUrl, iconWidth, iconHeight, content, audioPath }, i) => {
         setTimeout(() => {
@@ -201,6 +237,7 @@ const IndexPage = ({
         </div>
         <div>
           <StyledButton onClick={() => { setIsOriginalMap(o => !o); }}>Change Map Style</StyledButton>
+          <StyledButton style={{ backgroundColor: '#800000', marginLeft: 20, }} onClick={() => { createCoinMarker(); }}>Create Coin</StyledButton>
         </div>
       </StyledDiv>
       <MapRootDiv id="map" />
